@@ -38,6 +38,7 @@ bugs
 6) touch = create a file (touch filename to  create file) eg: touch f1
 7) mkdir = create a folder (mkdir foldername to create folder) eg: mkdir aws
 8) mv = move 
+   rename filename mv /file /rename
 9) clear = clear
 10) exit = exit the path
 11) rm = remove file or folder eg: rm filename to remove the file

@@ -1,0 +1,249 @@
+- What is S3?
+      Amazon S3 (Simple Storage Service) is an object storage service used 
+      to store any amount of data — like
+
+Images, videos, backups
+
+App data, logs, code packages
+
+Terraform states, static websites
+
+-----------------------------------------------------------------------------------------
+
+- S3 Setup – Step-by-Step
+- Step 1: Login to AWS Console
+Go to  https://console.aws.amazon.com/s3
+
+-  Step 2: Create an S3 Bucket
+ - Click “Create bucket”
+
+- Enter:
+
+- Bucket name (must be globally unique, e.g., ram-bucket-devops)
+
+- Region: Same as your EC2 region (e.g., us-east-1)
+
+- Keep all defaults, OR:
+
+- Turn OFF “Block all public access” only if you need a public website.
+
+- Click “Create bucket”
+
+ Bucket is created!
+---------------------------------------------------------------------------------------------
+
+-  Step 3: Upload a File
+
+- Open your bucket
+
+- Click “Upload”
+
+- Add any file → Click “Upload”
+
+- You’ll see it listed with URL
+--------------------------------------------------------------------------------------------------------
+
+- Step 4: Access File via URL (Optional)
+If public access is enabled, you can access via:
+
+
+- https://<bucket-name>.s3.amazonaws.com/<file-name>
+- If not public, you'll get "Access Denied" unless you use AWS CLI / SDK / IAM role.
+
+ AWS CLI: How to Use S3 from Command Line
+ 1. Configure CLI (only once)
+
+AWS Access Key
+
+Secret Key
+
+Region
+
+Output format (json/text)
+
+ 2. Upload File to S3
+
+aws s3 cp myfile.txt s3://ram-bucket-devops/
+ 3. Download File from S3
+
+- aws s3 cp s3://ram-bucket-devops/myfile.txt .
+ 4. List Files in Bucket
+
+aws s3 ls s3://ram-bucket-devops/
+5. Sync Local Folder to S3
+
+- aws s3 sync ./my-folder s3://ram-bucket-devops/
+
+==================================================================================
+
+-***--------- S3 Bucket Permissions (Optional)
+- To make the entire bucket public ( not recommended for sensitive data):
+
+Go to Permissions > Bucket Policy
+- In Block public access (bucket settings):
+
+- Uncheck Block all public access
+
+Paste this (modify bucket name):
+
+---------------------public access policies------------------
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowPublicRead",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": "arn:aws:s3:::ram-bucket-devops1/*"  #your bucket name add unique bucketname
+    }
+  ]
+}
+
+-------------------------------------------------------------------------------------------
+
+
+Then click Save.
+
+
+
+
+----------------------------------------------------------------
+
+= Fix the S3 AccessDenied Error for:
+https://ram-bucket-devops1.s3.us-east-1.amazonaws.com/Koppee-1.0.0/
+
+- Step 1: Disable "Block All Public Access"
+Go to S3 console → Click ram-bucket-devops1
+
+Go to Permissions tab
+
+In Block public access (bucket settings):
+
+Uncheck Block all public access
+
+Confirm by checking the acknowledgment box
+
+Click Save changes
+
+-  Step 2: Add a Bucket Policy for Public Read
+Go to Permissions tab → Scroll down to Bucket Policy → Click Edit and paste this:
+
+---------------------------------------------------------------------------
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowPublicRead",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": "arn:aws:s3:::ram-bucket-devops1/*"
+    }
+  ]
+}
+
+
+Then click Save.
+
+
+-----------------------------------------------------------
+
+- Go to Upload files 
+- to select the html file to select Open
+- then copy the file url 
+- https://ram-bucket-devops1.s3.us-east-1.amazonaws.com/Koppee-1.0.0/Koppee-1.0.0/index.html
+
+
+- like this 
+
+- go to search the url
+- to access the web site
+
+
+
+-------------------------------s3 storage classes---------------------------------------------------
+
+
+| Class                  | Use Case                   | Access Frequency | Cost     | Retrieval Speed    |
+| ---------------------- | -------------------------- | ---------------- | -------- | ------------------ |
+| S3 Standard            | Websites, apps             | Frequent         | High     | Immediate          |
+| S3 Standard-IA         | Backups, disaster recovery | Infrequent       | Medium   | Immediate          |
+| S3 One Zone-IA         | Low-priority backups       | Infrequent       | Low      | Immediate          |
+| S3 Intelligent-Tiering | Unknown patterns           | Varies           | Medium   | Immediate or delay |
+| S3 Glacier             | Archive                    | Rare             | Very Low | Minutes to hours   |
+| Glacier Deep Archive   | Long-term archive          | Very Rare        | Lowest   | Up to 48 hours     |
+
+
+-----------------------------------------------------------------------------------------------------------------------
+
+ S3 Storage Classes in AWS – Explained Simply
+Amazon S3 offers multiple storage classes that help you manage cost vs. access speed vs. durability depending on your use case.
+
+📦 1. S3 Standard
+💡 Default storage class
+
+🚀 Fast access (low latency)
+
+✅ Ideal for frequently accessed data (like websites, mobile apps)
+
+💰 Cost: Highest among all classes
+
+---------------------------------------------------
+
+💤 2. S3 Standard-IA (Infrequent Access)
+📂 For data accessed less often, but still needs to be instantly available
+
+✅ Cheaper storage cost than Standard
+
+⚠️ Retrieval cost applies (e.g., ₹0.01 per GB)
+
+📌 Use case: Backups, disaster recovery
+
+---------------------------------------------------------------------------
+
+🧊 3. S3 One Zone-IA
+Same as Standard-IA but stored in only one Availability Zone
+
+💰 Even cheaper
+
+❌ No redundancy across AZs
+
+📌 Use case: Non-critical backups
+
+------------------------------------------------------------------------
+
+❄️ 4. S3 Glacier
+For archival — long-term storage
+
+🕒 Retrieval time: Minutes to hours
+
+💰 Very low cost
+
+📌 Use case: Compliance, logs older than 6 months
+
+----------------------------------------------------------------------
+
+
+🧊❄️ 5. S3 Glacier Deep Archive
+🧾 Cheapest storage
+
+🕗 Retrieval time: 12–48 hours
+
+📌 Use case: Long-term, rarely accessed data (7+ years)
+
+-------------------------------------------------------------------
+🔄 6. S3 Intelligent-Tiering
+🧠 Automatically moves data between Standard, IA, and Glacier based on access pattern
+
+💡 Best for unknown or unpredictable access
+
+- Good balance of cost + performance
+
+---------------------------------------------------------------------------

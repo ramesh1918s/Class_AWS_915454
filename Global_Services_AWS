@@ -1,0 +1,16 @@
+| #   | Service                                  | Description                                                 |
+| --- | ---------------------------------------- | ----------------------------------------------------------- |
+| 1️⃣ | **IAM (Identity and Access Management)** | Manages users, groups, roles, and permissions globally.     |
+| 2️⃣ | **Route 53**                             | DNS and domain name service — globally managed.             |
+| 3️⃣ | **AWS CloudFront**                       | Content Delivery Network (CDN) — globally distributed.      |
+| 4️⃣ | **AWS WAF (Web Application Firewall)**   | Protects global apps with CloudFront, works globally.       |
+| 5️⃣ | **AWS Shield**                           | DDoS protection service — tied to CloudFront, hence global. |
+| 6️⃣ | **AWS Organizations**                    | Manage multiple AWS accounts in one place — global.         |
+| 7️⃣ | **Billing & Cost Management**            | Global for an account, not per region.                      |
+| 8️⃣ | **Service Quotas**                       | Manage limits for AWS services globally.                    |
+| 9️⃣ | **AWS Artifact**                         | Compliance reports — available globally.                    |
+| 🔟  | **IAM Identity Center (SSO)**            | Centralized identity access management — global scope.      |
+
+
+
+
