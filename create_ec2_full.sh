@@ -7,18 +7,18 @@ VPC_ID=$(aws ec2 create-vpc \
   --query 'Vpc.VpcId' --output text)
 
 # Create Subnets
-SUBNET1_ID=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 194.36.0.0/20 --availability-zone ap-south-1a \
+SUBNET1_ID=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 194.36.0.0/20 --availability-zone us-east-1a \
   --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=AWS_CLI_Subnet_1}]' \
   --query 'Subnet.SubnetId' --output text)
 
-SUBNET2_ID=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 194.36.16.0/20 --availability-zone ap-south-1b \
+SUBNET2_ID=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 194.36.16.0/20 --availability-zone us-east-1b \
   --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=AWS_CLI_Subnet_2}]' \
   --query 'Subnet.SubnetId' --output text)
 
-aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 194.36.32.0/20 --availability-zone ap-south-1c \
+aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 194.36.32.0/20 --availability-zone us-east-1c \
   --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=AWS_CLI_Subnet_3}]'
 
-aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 194.36.48.0/20 --availability-zone ap-south-1a \
+aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 194.36.48.0/20 --availability-zone us-east-1a \
   --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=AWS_CLI_Subnet_4}]'
 
 # Enable public IP auto-assign for 2 subnets
@@ -50,10 +50,10 @@ aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol -1 --port 
 
 # Launch EC2 instance with public IP
 aws ec2 run-instances \
-  --image-id ami-0e35ddab05955cf57 \
+  --image-id ami-084568db4383264d4 \
   --count 1 \
   --instance-type t2.micro \
-  --key-name Mumbai_Pem_Key \
+  --key-name Qalb_Key \
   --security-group-ids $SG_ID \
   --subnet-id $SUBNET1_ID \
   --associate-public-ip-address \
