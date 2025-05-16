@@ -1,0 +1,20 @@
+- how internet works 
+- how DNS works
+- what is DNS 
+
+- DNS port is 53 
+
+- Azure is route-53 name in Azure_DNS
+
+- what is forwared lookup
+- reverse lookup
+- ns lookup
+- DNS relited linux commands
+
+- DNS records
+- what is cloudflare 
+- cli
+- cf 
+- autoscling
+- elb 
+ 
