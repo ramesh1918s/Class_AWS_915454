@@ -1,0 +1,225 @@
+- how internet works 
+- how DNS works
+- what is DNS 
+
+- DNS port is 53 
+
+- Azure is route-53 name in Azure_DNS
+
+- what is forwared lookup
+- reverse lookup
+- ns lookup
+- DNS relited linux commands
+
+- DNS records
+- what is cloudflare 
+- cli
+- cf 
+- autoscling
+- elb 
+ 
+
+ --------------------------------------
+Route53
+------------
+
+ AWS Route 53 is a highly available and scalable Domain Name System (DNS) 
+ web service provided by Amazon Web Services (AWS). 
+ It is used for domain registration, DNS routing, and health checking of resources.
+
+Why is it called Route 53?
+-------------------------
+
+The name Route 53 comes from "Route" (used in networking) and "53" (the port number for DNS traffic, TCP/UDP port 53).
+
+
+Route 53 routing policeis
+---------------------------------
+
+Simple Routing: Maps a domain to a single IP or resource (default behavior).
+
+Weighted Routing: Distributes traffic across multiple endpoints based on assigned weights.
+
+Latency-based Routing:Directs users to the lowest latency AWS region.
+
+Failover Routing: Automatically redirects traffic to a healthy resource in case of failure.
+
+Geolocation Routing: Routes traffic based on the user's geographic location.
+
+Geoproximity Routing : Adjusts routing based on user location and bias preferences.
+
+Multi-Value Routing :Returns multiple healthy records for better load distribution.
+
+4. Health Checks & Failover
+---------------------------------
+.Monitors the health of web applications and endpoints.
+.Can automatically route traffic to healthy instances in case of failures.
+.Supports CloudWatch integration for eal-time monitoring.
+
+
+
+5. Private DNS for VPC
+-----------------------------
+Supports private DNS resolution within AWS Virtual Private Cloud (VPC)
+
+Hosted Zone
+---------------
+For one domain enters of all records are called as hosted zone
+1.Public dns host zones
+2. Private hosted zones
+
+
+How Route 53 Works? (Step-by-Step)
+------------------------------------
+When a user visits www.example.com, Route 53 performs the following steps:
+User enters a domain (www.example.com) in the web browser.
+Browser queries the DNS resolver (ISP, Google DNS, or Cloudflare DNS).
+DNS Resolver contacts Route 53 for the IP address.
+Route 53 responds with the IP address (based on the routing policy)
+Browser connecte to the web server hosting the website 
+Website loads successfully .
+  
+AWS Route 53 Alisa vs Cname
+----------------------------------
+AWS Route 53 provides two ways to map domain names : Alisa record s and CNAME record.
+while both serve similar purposes, they have key differences.
+
+Alisa 
+----------
+
+An Alias record is a Route 53-specific record type that allows you to map a domain name 
+directly to an AWS resource.
+
+Key Features:
+Works at the root domain level (e.g., example.com).
+Free of charge (AWS does not charge for Alias lookups).
+Routes directly to AWS services like:
+Elastic Load Balancer (ELB)
+I CloudFront distributions
+API Gateway
+S3 static website hosting 
+Global Accelerator
+
+Faster DNS resolution as it resolved within AWS
+
+2. CNAME Record
+----------------
+Definition:A CNAME (Canonical Name) record maps one domain name to another domain name.
+Key Features:
+Cannot be used at the root domain (only for subdomains like www.example.com).
+
+Failure routing policeis 
+--------------------------
+Uses Primary-Backup setup.
+Routes traffic to the Primary resource
+If Primary fails, traffic is redirected to Secondary (Failover).
+
+Use Case
+------------
+Disaster Recovery (automatic failover to a backup site).
+High availability for mission-critical apps
+
+
+DNS
+-------------
+
+DNS (Domain Name System) is a hierarchical and decentralized naming system that 
+translates human-readable domain names (like www.google.com) into IP addresses (like 142.250.183.14), 
+allowing computers to locate and communicate with each other over the internet or private networks.
+
+Types of DNS Lookups
+---------------------
+1. Forward Lookup (Name to IP Translation)
+- Converts a domain name into an IP address.
+Example:
+      * You enter www.example.com in your browser.
+      *DNS resolves it to 192.168.1.10
+- Used when clients want to connect to a server using a domain
+
+2.Reverse lookup (ip to name transalation)
+ . converts an ip address back into a domain name.
+. Example 
+. Example.com - 192.168.1.10
+
+
+DNS Records and Their Explanation
+
+DNS records are entries in a DNS server that map domain names to IP addresses and other important information. 
+Here are the most common types of DNS records:
+
+1. A Record (Address Record)
+Maps a domain name to an IPv4 address.
+Example:
+example.com 192.168.1.10
+
+
+2. AAAA Record (IPv6 Address Record)
+
+. Maps a domain name to an ipv6 address 
+. Example:
+. Example.com - 2001:db8
+
+3. CNAME Record (Canonical Name Record)
+Creates an alias for another domain.
+Used when multiple domain names should point to the same
+website.
+Example:
+I www.example.com - example.com
+
+4. MX Record (Mail Exchange Record)
+Specifies mail servers responsible for receiving emails for a domain.
+Example:
+I example.com mail.example.com (Priority: 10)
+
+5. PTR Record (Pointer Record)
+Used for reverse DNS lookups (IP to domain name).
+Example:
+192.168.1.10 - example.com.
+
+6. TXT Record (Text Record)
+Stores text information, often used for verification and security.
+Used in SPF, DKIM, and DMARC email security.
+Example:
+example.com - "v=spf1 include: spf.google.com"all"
+
+7. NS Record (Name Server Record)
+Specifies authoritative DNS servers for a domain
+Example:
+example.com -  ns1.example.com, ns2.example.com
+
+8. SRV Record (Service Record)
+Defines the location of services like SIP or LDAP
+Example:
+sip. tcp.example.com→ sipserver.example.com (Port: 5060)
+
+9. SOA Record (Start of Authority Record)
+Provides information about the domain's DNS zone.
+Contains details like primary DNS server, email of the administrator, and refresh times.
+Example:
+example.com ns1.example.com (Admin: admin@example.com)
+
+10. CAA Record (Certification Authority Authorization)
+Restricts which Certificate Authorities (CAs) can issue SSL certificates for a domain.
+Example:
+example.com→0issue "letsenypt.org"
+
+11. NAPTR Record (Naming Authority Pointer)
+
+
+-----------------------------------------------------------------------------------
+How DNS works
+----------------
+1. User Request: You enter a URL (e.g., www.example.com) into your browser or app. Your device needs the IP address to connect to the website's server.
+2. Local DNS Resolver: Your device checks its local cache (browser or operating system) for the IP address. If not found, it queries a DNS resolver, usually provided by your ISP or a public service like Google DNS (8.8.8.8). 
+3. Root Name Servers: If the resolver doesn't have the answer, it contacts one of the 13 global root name servers. These servers know the locations of Top-Level Domain (TLD) servers (e.g., for .com, .org).
+4.TLD Name Servers:The Root server directs the resolver to the TLD name server for the domain s extension (eg., com).The TLD server 
+
+Provides the address of the authoritative name server for the specific domain.
+5. provides the address of the authoritative name server for the specific domain, I
+
+5. Authoritative Name Server: The resolver queries the authoritative name server, which holds the DNS records (e.g., A record for IPVA, AAAA for IPv6) for the domain. It returns the IP address.
+
+6. Response to Device: The resolver sends the IP address back to your device, which caches it for future use. Your browser then uses this IP to connect to the website's server.
+
+7. Connection: Your device communicates with the website's server, and the content loads.
+How the Internet Works When You Type a Domain Name in a Web
