@@ -1,0 +1,114 @@
+Cloud computing
+Cloud computing is the delivery of computing resources, including servers, storage, 
+databases, networking, and software, over the internet. It allows users to access these 
+resources on-demand without needing to manage the 
+underlying infrastructure. Essentially, it's about using the internet to access and utilize 
+computing power and other services instead of relying on local hardware. 
+
+AWS
+Amazon Web Services (AWS) is the world's most comprehensive and broadly adopted cloud platform, 
+offering over 230 fully featured services from data centers globally. Millions of customers-including the fastest-growing startups, 
+largest enterprises, and leading government agencies are using AWS to lower costs, become more agile, and innovate faster.
+
+
+AWS well architecture framework 
+
+1 operational excellence
+2 security 
+3 performance efficiency 
+4 cost optimization 
+5 reliability 
+6   Sustainability
+1. Operational Excellence
+
+2. Security
+3. Reliability 
+4. Performance Efficiency
+5. Cost Optimization
+6. Sustainability
+
+AWS Regions and Available Zones
+
+An Availability Zone consists of one or more data centers, each with redundant power, 
+networking, and connectivity. The data centers of a single Availability Zone, or "AZ" for short, 
+are typically within 100 kilometers or 60 miles of each other. Think of it as a cluster of interconnected
+ data centers in a specific geographic zone, that can help your applications become 
+ highly available - hence the name, Availability Zone.
+
+AWS Regions and Available Zones
+
+ To improve the durability of your data, you can also replicate it in two or more regions. 
+ This is helpful for disaster recovery and backups.
+
+The Availability Zones of a single AWS Region are typically within hundreds of kilometers or 
+miles of each other. However, these AZs are still within a specific country to comply with
+the data sovereignty requirement. This is particularly useful if you have sensitive data that 
+must only be stored in a certain location or country for data privacy compliance.
+
+AWS Edge Locations
+
+The other component of the AWS Global Cloud Infrastructure is the edge networks of
+Point-of-Presence or PoP. It consists of Edge Locations and Regional Edge Caches, 
+which enables you to distribute your content with low-latency (pronounce: ers. Basically, Laaay-tancy)
+to your global users. Bas a PoP serves as an access point that allows two different networks to 
+communicate
+ with each other.
+
+AWS Elastic Computing Cloud(EC2)
+
+Amazon Elastic Compute Cloud (Amazon EC2) provides on-demand, 
+scalable computing capacity in the Amazon Web Services (AWS) Cloud.
+Using Amazon EC2 reduces hardware costs so you can develop and deploy applications faster. 
+You can use Amazon EC2 to launch as many or as few virtual servers as you need, configure security and networking,
+ and manage storage.
+
+Services:
+
+IAM- Identity and access Management
+EC2- Elastic Computing Cloud
+server virtual server ec2 instance cpu and memory
+VPC - Networking 
+EBS -Elastic Block Storageerd disk
+VPC - Virtual Private Cloud Networking
+
+S3 - Simple storage service
+EFS Elastic File system
+
+RDS- Relational Database Service (SQL) 6 to7 (MySQL,Sql,..... Postgre,
+ ms sqlserver, maria db,ibm db2, aurora -mysal and post gre)
+Elastic Cache Nosql -2 ( redis, memcache)
+Dynamodb -Serverless database
+
+Cloudwatch -Monitoring
+Cloudtrail -Administrative events can be tracked or auditing
+Route53- AWS DNS - www.rameshmuddappagari.com
+
+EKS- elastic kuberntes service ( Kubernetes)
+ECS-elastic container service (Docker)
+ECR- elastic container registry (Docker registry)
+
+AWS DevOps services
+Code build
+Code pipeline 
+Code deploy
+Code config
+Code star
+
+Cloud front -CDN (content delivery network)
+SNS -Simple Notification service 
+SES - Simple Email service 
+SQS -Simple Queing service 
+
+Lambda - Server less
+AWS directory Service -L
+
+We want to admistrate AWS Service:
+
+GUI -AWS Management Console , Azure Portal 
+CLI -AWSCLI or Cloud shell ,Azure shell or azure power shell
+API/SDK- Developers can use , azure api /SDK
+IAC- Infrastrute as code 
+AWS - Cloud Formation , azure ARM templates / biceps
+Terraform ,Azure is aslo used terraform
+
+25+  Regions ,AZ min 2-3 some regions or 5-6, 700+ edge location
