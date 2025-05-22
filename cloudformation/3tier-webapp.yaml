@@ -1,0 +1,161 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 3-Tier Web Application Stack
+
+Resources:
+
+  # VPC
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.12.0.0/16
+      Tags:
+        - Key: Name
+          Value: 3TierVPC
+
+  # Internet Gateway
+  MyIGW:
+    Type: AWS::EC2::InternetGateway
+
+  IGWAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref MyIGW
+      VpcId: !Ref MyVPC
+
+  # Public Subnet for Frontend
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.12.1.0/24
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: PublicSubnet
+
+  # Private Subnet for Backend
+  PrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.12.2.0/24
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      Tags:
+        - Key: Name
+          Value: PrivateSubnet
+
+  # Route Table for Public Subnet
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: IGWAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref MyIGW
+
+  SubnetRouteAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+
+  # Security Groups
+  FrontendSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP to frontend
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  BackendSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow traffic from frontend to backend
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          SourceSecurityGroupId: !Ref FrontendSG
+
+  RDSSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow MySQL traffic from backend
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref BackendSG
+
+  # EC2 Frontend
+  FrontendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      KeyName: Mumbai_Pem_Key
+      ImageId: ami-0e35ddab05955cf57
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref PublicSubnet
+          GroupSet:
+            - !Ref FrontendSG
+      Tags:
+        - Key: Name
+          Value: FrontendServer
+
+  # EC2 Backend
+  BackendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      KeyName: Mumbai_Pem_Key
+      ImageId: ami-0e35ddab05955cf57
+      SubnetId: !Ref PrivateSubnet
+      SecurityGroupIds:
+        - !Ref BackendSG
+      Tags:
+        - Key: Name
+          Value: BackendServer
+
+  # RDS MySQL
+  MyDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: MyAppDB
+      AllocatedStorage: 20
+      DBInstanceClass: db.t3.micro
+      Engine: MySQL
+      EngineVersion: 8.0
+      MasterUsername: admin
+      MasterUserPassword: Admin12345
+      VPCSecurityGroups:
+        - !Ref RDSSG
+      DBSubnetGroupName: !Ref MyDBSubnetGroup
+      PubliclyAccessible: false
+      MultiAZ: false
+
+  MyDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS
+      SubnetIds:
+        - !Ref PublicSubnet
+        - !Ref PrivateSubnet
+
+Outputs:
+  FrontendPublicIP:
+    Description: Public IP of Frontend Instance
+    Value: !GetAtt FrontendInstance.PublicIp

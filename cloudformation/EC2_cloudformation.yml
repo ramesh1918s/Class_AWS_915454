@@ -1,0 +1,103 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create VPC, subnet, IGW, route table, SG, and EC2 instance.
+
+Resources:
+
+  MubVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 196.45.0.0/16
+      Tags:
+        - Key: Name
+          Value: Mub_Vpc
+
+  MubSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MubVpc
+      CidrBlock: 196.45.0.0/20
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: mub_subnet
+
+  MubInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: mub_int
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MubVpc
+      InternetGatewayId: !Ref MubInternetGateway
+
+  MubRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MubVpc
+      Tags:
+        - Key: Name
+          Value: mub_rt
+
+  MubRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref MubRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref MubInternetGateway
+
+  SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref MubSubnet
+      RouteTableId: !Ref MubRouteTable
+
+  MubSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow all traffic
+      VpcId: !Ref MubVpc
+      GroupName: mub_sg
+      SecurityGroupIngress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: mub_sg
+
+  MubEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      KeyName: Qalb_Key
+      ImageId: ami-084568db4383264d4
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref MubSubnet
+          GroupSet:
+            - !Ref MubSecurityGroup
+      Tags:
+        - Key: Name
+          Value: mub_cloud_ec2
+
+Outputs:
+  InstanceID:
+    Description: The ID of the EC2 instance
+    Value: !Ref MubEC2Instance
+
+  SubnetID:
+    Description: The ID of the created subnet
+    Value: !Ref MubSubnet
+
+  SecurityGroupID:
+    Description: The ID of the security group
+    Value: !Ref MubSecurityGroup
