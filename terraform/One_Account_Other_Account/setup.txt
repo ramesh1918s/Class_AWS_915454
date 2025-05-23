@@ -1,0 +1,251 @@
+To create two EC2 instances in two different AWS accounts using Terraform, follow these steps:
+
+✅ Full Setup Overview
+You need:
+Two AWS provider blocks, each with different credentials (or profiles).
+
+Two EC2 instances, one per provider (i.e., per AWS account).
+
+An output.tf file to show public IPs or DNS.
+
+✅ main.tf
+hcl
+Copy
+Edit
+# ---------------- Provider for Account A (Default Profile) ----------------
+provider "aws" {
+  region  = "us-east-1"
+  alias   = "account_a"
+  profile = "account-a"
+}
+
+# ---------------- Provider for Account B (Second Profile) ----------------
+provider "aws" {
+  region  = "ap-south-1"
+  alias   = "account_b"
+  profile = "account-b"
+}
+
+# ---------------- Security Group (Reusable) ----------------
+resource "aws_security_group" "common_sg" {
+  provider    = aws.account_a
+  name        = "AllowSSHHTTP"
+  description = "Allow SSH and HTTP"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "backup_sg" {
+  provider    = aws.account_b
+  name        = "AllowSSHHTTP"
+  description = "Allow SSH and HTTP"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# ---------------- EC2 in Account A ----------------
+resource "aws_instance" "instance_a" {
+  provider               = aws.account_a
+  ami                    = "ami-04b4f1a9cf54c11d0"
+  instance_type          = "t2.micro"
+  key_name               = "Qalb_Key"
+  vpc_security_group_ids = [aws_security_group.common_sg.id]
+  tags = {
+    Name = "EC2-Account-A"
+  }
+}
+
+# ---------------- EC2 in Account B ----------------
+resource "aws_instance" "instance_b" {
+  provider               = aws.account_b
+  ami                    = "ami-0e35ddab05955cf57"
+  instance_type          = "t2.micro"
+  key_name               = "Mumbai_Pem_Key"
+  vpc_security_group_ids = [aws_security_group.backup_sg.id]
+  tags = {
+    Name = "EC2-Account-B"
+  }
+}
+✅ output.tf
+hcl
+Copy
+Edit
+output "Account_A_EC2_Public_IP" {
+  value = aws_instance.instance_a.public_ip
+}
+
+output "Account_A_EC2_Public_DNS" {
+  value = aws_instance.instance_a.public_dns
+}
+
+output "Account_B_EC2_Public_IP" {
+  value = aws_instance.instance_b.public_ip
+}
+
+output "Account_B_EC2_Public_DNS" {
+  value = aws_instance.instance_b.public_dns
+}
+🔐 Credentials Management (CLI Profiles)
+Set up your credentials in ~/.aws/credentials:
+
+ini
+Copy
+Edit
+[account-a]
+aws_access_key_id = YOUR_ACCESS_KEY_A
+aws_secret_access_key = YOUR_SECRET_KEY_A
+
+[account-b]
+aws_access_key_id = YOUR_ACCESS_KEY_B
+aws_secret_access_key = YOUR_SECRET_KEY_B
+Would you like this structure expanded to include VPCs and Subnets for each account as well?
+
+
+
+
+
+
+
+You said:
+M.Ramesh@Ramesh MINGW64 ~/AWS/Class_AWS_915454/terraform/One_Account_Other_Account (main)
+$ terraform plan
+
+Planning failed. Terraform encountered an error while generating this plan.
+
+╷
+│ Error: failed to get shared config profile, account-a
+│
+│   with provider["registry.terraform.io/hashicorp/aws"].account_a,
+│   on main.tf line 2, in provider "aws":
+│    2: provider "aws" {
+│
+╵
+╷
+│ Error: failed to get shared config profile, account-b
+│
+│   with provider["registry.terraform.io/hashicorp/aws"].account_b,
+│   on main.tf line 9, in provider "aws":
+│    9: provider "aws" {
+│
+╵
+
+M.Ramesh@Ramesh MINGW64 ~/AWS/Class_AWS_915454/terra
+
+
+ChatGPT said:
+The error you're seeing:
+
+vbnet
+Copy
+Edit
+Error: failed to get shared config profile, account-a
+Error: failed to get shared config profile, account-b
+means that Terraform cannot find the AWS CLI profiles named account-a and account-b in your ~/.aws/credentials or ~/.aws/config files.
+
+✅ Fix: Set Up AWS CLI Profiles
+You need to configure the two named profiles using the AWS CLI.
+
+🔧 Step 1: Configure Profiles
+Run the following commands to configure each account:
+
+bash
+Copy
+Edit
+aws configure --profile account-a
+Enter the access key, secret key, region (e.g. us-east-1), and output format (json).
+
+Then do the same for the second account:
+
+bash
+Copy
+Edit
+aws configure --profile account-b
+✅ Check Profile Setup
+Verify profiles with:
+
+bash
+Copy
+Edit
+cat ~/.aws/credentials
+cat ~/.aws/config
+You should see something like:
+
+~/.aws/credentials
+
+ini
+Copy
+Edit
+[account-a]
+aws_access_key_id = AKIAxxxxxxxxxxx
+aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxxx
+
+[account-b]
+aws_access_key_id = AKIAyyyyyyyyyyy
+aws_secret_access_key = yyyyyyyyyyyyyyyyyyyyyyyy
+~/.aws/config
+
+ini
+Copy
+Edit
+[profile account-a]
+region = us-east-1
+output = json
+
+[profile account-b]
+region = ap-south-1
+output = json
+✅ After Setting Profiles
+Run Terraform again:
+
+bash
+Copy
+Edit
+terraform init
+terraform plan
+terraform apply
+Let me know if you want to use environment variables instead of profiles (for CI/CD, for example).
+
+
+
+
+
+
+
